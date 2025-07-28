@@ -12,8 +12,7 @@ export {
   ItemPipeline, 
   ValidationPipeline, 
   JsonWriterPipeline, 
-  TextWriterPipeline,
-  DuplicatesPipeline 
+  TextWriterPipeline
 } from './core/pipeline';
 export { CrawlerEngine, EngineSettings } from './core/engine';
 
@@ -37,17 +36,13 @@ export async function runSpider(
   const { 
     ValidationPipeline, 
     JsonWriterPipeline, 
-    TextWriterPipeline,
-    DuplicatesPipeline 
+    TextWriterPipeline
   } = await import('./core/pipeline');
 
   const pipelines: ItemPipeline[] = [];
   
   // 添加验证管道
   pipelines.push(new ValidationPipeline());
-  
-  // 添加去重管道
-  pipelines.push(new DuplicatesPipeline());
   
   // 根据输出格式添加相应管道
   const outputDir = options.outputDir || 'output';

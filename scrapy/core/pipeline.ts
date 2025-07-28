@@ -148,29 +148,3 @@ export class TextWriterPipeline extends ItemPipeline {
   }
 }
 
-/**
- * 重复数据过滤管道
- */
-export class DuplicatesPipeline extends ItemPipeline {
-  private seenUrls = new Set<string>();
-
-  async processItem(item: Item, spider: Spider): Promise<Item | null> {
-    const url = (item as any).url;
-    if (!url) {
-      return item; // 如果没有URL字段，直接通过
-    }
-
-    if (this.seenUrls.has(url)) {
-      console.log(`发现重复URL，丢弃: ${url}`);
-      return null;
-    }
-
-    this.seenUrls.add(url);
-    return item;
-  }
-
-  closeSpider(spider: Spider): void {
-    super.closeSpider(spider);
-    this.seenUrls.clear();
-  }
-} 
