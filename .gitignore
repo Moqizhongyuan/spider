@@ -25,6 +25,9 @@ out/
 .next/
 .nuxt/
 
+# 爬虫输出文件
+output/
+
 # 缓存目录
 .cache/
 .temp/
