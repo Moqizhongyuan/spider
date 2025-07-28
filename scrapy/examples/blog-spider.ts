@@ -16,10 +16,6 @@ export class BlogSpider extends Spider {
   async *parse(response: Response): AsyncGenerator<BlogItem | Request, void, unknown> {
     console.log(`解析页面: ${response.url}`);
 
-    // 获取当前深度
-    const currentDepth = response.request.meta?.depth || 0;
-    const maxDepth = 1; // 限制最大深度为1
-
     // 提取页面标题
     const title = this.extractTitle(response.text);
     
@@ -31,9 +27,6 @@ export class BlogSpider extends Spider {
     
     // 提取作者信息（从页面内容中提取）
     const author = this.extractAuthor(response.text);
-    
-    // 提取博客特征信息
-    const blogInfo = this.extractBlogInfo(response.text);
 
     // 创建博客数据项
     const blogItem = new BlogItem({
@@ -47,21 +40,16 @@ export class BlogSpider extends Spider {
 
     yield blogItem;
 
-    // 只在深度0（起始页面）时才跟踪链接
-    if (currentDepth === 0) {
-      console.log(`当前深度: ${currentDepth}, 开始抓取导航页面...`);
-      const navigationLinks = this.extractNavigationLinks(response.text);
-      for (const link of navigationLinks) {
-        if (this.shouldFollowLink(link, response.url)) {
-          yield {
-            url: link,
-            method: 'GET' as const,
-            meta: { depth: currentDepth + 1 }
-          };
-        }
+    // 提取并跟踪所有导航链接，由引擎层处理去重
+    console.log(`开始抓取页面中的导航链接...`);
+    const navigationLinks = this.extractNavigationLinks(response.text);
+    for (const link of navigationLinks) {
+      if (this.isValidUrl(link)) {
+        yield {
+          url: link,
+          method: 'GET' as const
+        };
       }
-    } else {
-      console.log(`当前深度: ${currentDepth}, 达到最大深度，不再跟踪链接`);
     }
   }
 
@@ -139,28 +127,26 @@ export class BlogSpider extends Spider {
   }
 
   /**
-   * 判断是否应该跟踪链接
+   * 验证URL是否有效且应当被跟踪
    */
-  private shouldFollowLink(url: string, currentUrl: string): boolean {
+  private isValidUrl(url: string): boolean {
     // 只跟踪同域名下的页面
     if (!url.includes('markdown-blog-bay.vercel.app')) {
       return false;
     }
 
-    // 避免重复抓取相同页面
-    if (url === currentUrl) {
+    // 避免查询参数和锚点链接
+    if (url.includes('#') || url.includes('?')) {
       return false;
     }
 
-    // 只抓取主要导航页面，避免无限循环
-    const allowedPages = [
-      'https://markdown-blog-bay.vercel.app/',
-      'https://markdown-blog-bay.vercel.app/frontEnd',
-      'https://markdown-blog-bay.vercel.app/codeEngineering',
-      'https://markdown-blog-bay.vercel.app/codeLife'
-    ];
+    // 避免非HTML页面（图片、CSS、JS等）
+    const invalidExtensions = ['.png', '.jpg', '.jpeg', '.gif', '.css', '.js', '.ico', '.svg'];
+    if (invalidExtensions.some(ext => url.toLowerCase().includes(ext))) {
+      return false;
+    }
 
-    return allowedPages.includes(url);
+    return true;
   }
 
   /**

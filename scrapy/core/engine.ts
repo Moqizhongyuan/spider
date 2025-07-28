@@ -21,6 +21,7 @@ export class CrawlerEngine {
   private settings: EngineSettings;
   private requestQueue: Request[] = [];
   private runningRequests = new Set<Promise<void>>();
+  private seenUrls = new Set<string>(); // 添加URL去重跟踪
   private isRunning = false;
   private stats = {
     requestsSent: 0,
@@ -74,6 +75,9 @@ export class CrawlerEngine {
       spider.closed();
       this.isRunning = false;
       
+      // 清理URL缓存
+      this.seenUrls.clear();
+      
       console.log(`爬虫 ${spider.name} 完成统计:`);
       console.log(`- 发送请求: ${this.stats.requestsSent}`);
       console.log(`- 接收响应: ${this.stats.responsesReceived}`);
@@ -90,6 +94,14 @@ export class CrawlerEngine {
       // 控制并发数量
       while (this.runningRequests.size < (this.settings.concurrentRequests || 8) && this.requestQueue.length > 0) {
         const request = this.requestQueue.shift()!;
+        
+        // URL去重检查
+        if (this.seenUrls.has(request.url)) {
+          console.log(`跳过重复URL: ${request.url}`);
+          continue;
+        }
+        this.seenUrls.add(request.url);
+        
         const requestPromise = this.processRequest(spider, request);
         this.runningRequests.add(requestPromise);
         

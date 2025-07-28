@@ -18,7 +18,7 @@ async function main() {
     // 运行爬虫，输出为文本格式到output目录
     const stats = await runSpider(spider, {
       outputDir: 'output',
-      outputFormat: 'text', // 只输出文本格式
+      outputFormat: 'json', // 只输出文本格式
       concurrent: 2,        // 并发数为2
       delay: 1             // 请求间隔1秒
     });
