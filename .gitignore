@@ -2,6 +2,20 @@
 node_modules/
 .pnpm-debug.log*
 
+# pnpm 相关
+.pnpm-store/
+.pnpm/
+pnpm-lock.yaml
+.pnpm-store
+pnpm-workspace.yaml
+
+# 包管理器缓存
+.npm/
+.yarn/
+.yarn-integrity
+yarn.lock
+package-lock.json
+
 # 日志文件
 logs
 *.log
@@ -11,12 +25,14 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
-# 环境变量文件
+# 环境变量文件 (重要：保护敏感信息)
 .env
-.env.local
-.env.development.local
-.env.test.local
-.env.production.local
+.env.*
+.local.env
+.development.env
+.production.env
+.test.env
+config.env
 
 # 构建输出
 dist/
@@ -79,3 +95,39 @@ error-*.png
 
 # TypeScript 编译输出
 *.tsbuildinfo
+
+# 代理和爬虫相关
+proxy-config.*
+spider-config.*
+
+# 浏览器相关
+.chrome/
+.firefox/
+puppeteer/
+
+# 其他常见忽略项
+.vscode/
+.idea/
+*.code-workspace
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Linux
+*~
+.fuse_hidden*
+.directory
+.Trash-*
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# 备份文件
+*.bak
+*.backup
+*.orig
